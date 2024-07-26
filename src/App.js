@@ -23,11 +23,22 @@ export default function App() {
     setItems([...items, newItem]);
   }
 
+  // Function to remove an item from the list
+  function removeItem(id) {
+    setItems(items.filter(item => item.id !== id));
+  }
+
+  // Function to toggle the packed state of an item
+  function togglePacked(id) {
+    setItems(items.map(item => item.id === id ? { ...item, packed: !item.packed } : item));
+  }
+
   return (
     <div className="app">
       <Logo />
       <Form addItem={addItem} />
-      <PackingList items={items} />
+      <PackingList items={items} removeItem={removeItem} togglePacked={togglePacked} />
+      <Legend />
       <Stats items={items} />
     </div>
   );
@@ -36,6 +47,15 @@ export default function App() {
 // Logo component
 function Logo() {
   return <h1>🏝️ Far Away 🧳</h1>;
+}
+
+// Legend component
+function Legend() {
+  return (
+    <div className="list">
+      <p>Press ✅ to toggle packed status, ❌ to remove item from trip</p>
+    </div>
+  );
 }
 
 // Form component for adding new items
@@ -78,12 +98,12 @@ function Form({ addItem }) {
 }
 
 // PackingList component to display the list of items
-function PackingList({ items }) {
+function PackingList({ items, removeItem, togglePacked }) {
   return (
     <div className="list">
       <ul>
         {items.map((item) => (
-          <Item key={item.id} item={item} />
+          <Item key={item.id} item={item} removeItem={removeItem} togglePacked={togglePacked} />
         ))}
       </ul>
     </div>
@@ -91,13 +111,14 @@ function PackingList({ items }) {
 }
 
 // Item component to display each item in the list
-function Item({ item }) {
+function Item({ item, removeItem, togglePacked }) {
   return (
     <li>
+      <button onClick={() => togglePacked(item.id)}>{item.packed ? '✅' : '⬜'}</button>
       <span style={item.packed ? { textDecoration: "line-through" } : {}}>
         {item.quantity} {item.description}
       </span>
-      <button>❌</button>
+      <button onClick={() => removeItem(item.id)}>❌</button>
     </li>
   );
 }
